@@ -1,5 +1,6 @@
+start
 PUSH 0
-# Start of loop
+loop
 PUSH 1
 ADD
 DUP
@@ -7,7 +8,10 @@ DUP
 PUSH 10
 EQUALS
 NOT
-PUSH 1
+PUSH loop
 IF
+POP
+PUSH start
+JUMP
 
 
