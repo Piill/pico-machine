@@ -4,11 +4,23 @@
 #include <stdio.h>
 #include <string.h>
 
-struct machine* create_machine(char* input_stream) {
-	struct machine* pico = malloc(sizeof(struct machine));
+void default_error_handler(struct pmachine* pico, int error) {
+	if(error == PER_STACKOVERFLOW)
+		printf("Stack overflow\n");
+	if(error == PER_UNBOUNDMEM)
+		printf("Unbound mem access\n");
+	printf("Terminating program\n");
+	exit(-1);
+}
+
+struct pmachine* create_machine(char* input_stream) {
+	struct pmachine* pico = malloc(sizeof(struct pmachine));
 	pico->SP = 0;
 	pico->PC = 0;
 	memset(pico->mem, 0, 0xFF*sizeof(uint8_t));
+	pico->handle_error = &default_error_handler;
+	pico->write_mem = NULL;
+	pico->read_mem = NULL;
 
 	for(int i = 0; i < 0xFF && input_stream[i] > 32
 			&& input_stream[i] < 127; i++) {
@@ -17,15 +29,16 @@ struct machine* create_machine(char* input_stream) {
 	return pico;
 }
 
-void destroy_machine(struct machine* pico) {
+void destroy_machine(struct pmachine* pico) {
 	free(pico);
 }
 
-void execute_instruction(struct machine* pico) {
+void execute_instruction(struct pmachine* pico) {
 	uint8_t val, addr;
-	switch(read_mem(pico, pico->PC)) {
+	pico->PC++;
+	switch(read_mem(pico, pico->PC-1)) {
 		case '!': //Push
-			push(pico, read_mem(pico, pico->PC+1) - 33);
+			push(pico, read_mem(pico, pico->PC) - 33);
 			pico->PC++;
 			break;
 		case '"': //Pop
@@ -37,12 +50,16 @@ void execute_instruction(struct machine* pico) {
 			push(pico, val);
 			break;
 		case '$': //Swap
-			val = read_stack(pico, 0);
-			write_stack(pico, 0, read_stack(pico, 1));
-			write_stack(pico, 1, val);
+			val = pop(pico);
+			addr = pop(pico);
+			push(pico, val);
+			push(pico, addr);
 			break;
 		case '%': //Over
-			val = read_stack(pico, 1);
+			addr = pop(pico);
+			val = pop(pico);
+			push(pico, val);
+			push(pico, addr);
 			push(pico, val);
 			break;
 		case '&': //Add
@@ -102,55 +119,58 @@ void execute_instruction(struct machine* pico) {
 		default:
 			break;
 	}
-	pico->PC++;
 }
 
-void push(struct machine* pico, uint8_t val) {
+void push(struct pmachine* pico, uint8_t val) {
 	write_stack(pico, 0, val);
 	pico->SP++;
 }
 
-uint8_t pop(struct machine* pico) {
+uint8_t pop(struct pmachine* pico) {
 	pico->SP--;
 	uint8_t val = read_stack(pico, 0);
 	return val;
 }
 
-uint8_t read_mem(struct machine* pico, uint8_t addr) {
-	if(addr >= 0 && addr <= 0xff) {
+uint8_t read_mem(struct pmachine* pico, uint8_t addr) {
+	if(addr <= 0xE0) {
 		return pico->mem[addr];
-	}
-	printf("Unbound mem access\n");
-	printf("Terminating program\n");
-	exit(-1);
-}
-
-void write_mem(struct machine* pico, uint8_t addr, uint8_t val) {
-	if(addr <= 0xff) {
-		pico->mem[addr] = val;
+	} else if(addr == 0xF0) {
+		return pico->PC;
+	} else if(addr == 0xF1) {
+		return STACK_DEPTH;
+	} else if(addr == 0xF2) {
+		return pico->SP;
+	} else if(addr <= 0xFF && pico->read_mem != NULL) {
+		return pico->read_mem(addr);
 	} else {
-		printf("Unbound mem access\n");
-		printf("Terminating program\n");
-		exit(-1);
+		pico->handle_error(pico, PER_UNBOUNDMEM);
 	}
 }
 
-uint8_t read_stack(struct machine* pico, uint8_t addr) {
+void write_mem(struct pmachine* pico, uint8_t addr, uint8_t val) {
+	if(addr <= 0xE0) {
+		pico->mem[addr] = val;
+	} else if(addr <= 0xFF && pico->write_mem != NULL) {
+		pico->write_mem(addr, val);
+	} else {
+		pico->handle_error(pico, PER_UNBOUNDMEM);
+	}
+}
+
+uint8_t read_stack(struct pmachine* pico, uint8_t addr) {
 	if(addr+pico->SP <= STACK_DEPTH) {
 		return pico->stack[pico->SP+addr];
 	}
-	printf("Stack overflow\n");
-	printf("Terminating program\n");
-	exit(-1);
+	pico->handle_error(pico, PER_STACKOVERFLOW);
 }
 
-void write_stack(struct machine* pico, uint8_t addr, uint8_t val) {
+void write_stack(struct pmachine* pico, uint8_t addr, uint8_t val) {
 	if(addr+pico->SP <= STACK_DEPTH) {
 		pico->stack[pico->SP+addr] = val;
 	} else {
-		printf("Stack overflow\n");
-		printf("Terminating program\n");
-		exit(-1);
+		pico->handle_error(pico, PER_STACKOVERFLOW);
 	}
 }
+
 

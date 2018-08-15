@@ -17,6 +17,9 @@ The rest of the memory is used for special values and memory mapped IO.
 | `0xF4` | std out |
 | `0xF5` - `0xFF` | Reserved for memory mapped IO |
 
+## Implementing memory mapped IO
+The `pmachine` structure contains two function pointers, `read_mem` and `write_mem`. These functions are called when memory mapped IO is accessed.
+
 # The stack
 The stack is guaranteed to have a minimum depth of 254. A stack overflow should terminate the program immediately.
 
@@ -49,6 +52,11 @@ The value 0 and 1 is used to represent false and true, respectively.
 | SysCall|	SYSCALL |4| Makes a system call. This is implementation dependant. |
 
 
+# Implementation
+## Error handling
+The `pmachine` struct defines a function pointer, `handle_error`.
+Replace this to handle any errors that may occour during the runtime of the program.
+The default error handler simply writes a short error message, and exits the program.
 
 
 
