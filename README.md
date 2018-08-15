@@ -6,7 +6,7 @@ It is incomplete for made for fun, so don't go putting it into anm expensive roc
 # Project structure
 `docs` contains all the documentation for the project, `core` contains the src for the core implementation, `assembler` contains the source for the assembler and `example` contains an example program using the core implementation.
 
-#Example programs
+# Example programs
 If you want to see the full source, simply look in the examples folder, here you will also find a program able to run them in your terminal.
 
 If you just want to the machine code, here it is:
