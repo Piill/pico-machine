@@ -13,9 +13,7 @@ The rest of the memory is used for special values and memory mapped IO.
 | `0xF0` | PC |
 | `0xF1` | Stack depth |
 | `0xF2` | SP | 
-| `0xF3` | Std in |
-| `0xF4` | std out |
-| `0xF5` - `0xFF` | Reserved for memory mapped IO |
+| `0xF3` - `0xFF` | Reserved for memory mapped IO |
 
 ## Implementing memory mapped IO
 The `pmachine` structure contains two function pointers, `read_mem` and `write_mem`. These functions are called when memory mapped IO is accessed.
