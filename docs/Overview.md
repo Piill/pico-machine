@@ -50,6 +50,7 @@ The value 0 and 1 is used to represent false and true, respectively.
 | Not	|	NOT     |2| If `N1` is 0, push 1 onto the stack, otherwise push 0 |
 | Jump	|	JUMP    |3| Jump to address `N1`	|
 | SysCall|	SYSCALL |4| Makes a system call. This is implementation dependant. |
+| Exit	|	EXIT	|5|	Stops execution of the program |
 
 
 # Implementation

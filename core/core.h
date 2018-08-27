@@ -16,6 +16,7 @@ struct pmachine {
 
 	//Exception handeling
 	void (*handle_error)(struct pmachine* pico ,int error_code);
+	void (*handle_exit)(struct pmachine* pico);
 };
 
 struct pmachine* create_machine(char* input_stream);

@@ -13,12 +13,18 @@ void default_error_handler(struct pmachine* pico, int error) {
 	exit(-1);
 }
 
+void default_exit_handler(struct pmachine* pico) {
+	printf("Exit reached\n");
+	exit(0);
+}
+
 struct pmachine* create_machine(char* input_stream) {
 	struct pmachine* pico = malloc(sizeof(struct pmachine));
 	pico->SP = 0;
 	pico->PC = 0;
 	memset(pico->mem, 0, 0xFF*sizeof(uint8_t));
 	pico->handle_error = &default_error_handler;
+	pico->handle_exit = &default_exit_handler;
 	pico->write_mem = NULL;
 	pico->read_mem = NULL;
 
@@ -116,6 +122,10 @@ void execute_instruction(struct pmachine* pico) {
 			pico->PC = pop(pico);
 			break;
 		case '4': //Syscall
+			break;
+		case '5': //Exit
+			pico->handle_exit(pico);
+			break;
 		default:
 			break;
 	}

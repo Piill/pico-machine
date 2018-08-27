@@ -27,9 +27,8 @@ ADD
 ADD
 EQUALS
 NOT
+#loop end
 PUSH loop
 IF
-PUSH end
-JUMP
+EXIT
 val
-end

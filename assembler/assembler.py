@@ -25,7 +25,8 @@ instructions = {
         "IF":"1",
         "NOT":"2",
         "JUMP":"3",
-        "SYSCALL":"4"
+        "SYSCALL":"4",
+        "EXIT":"5"
         }
 labels = {}
 addr = 0

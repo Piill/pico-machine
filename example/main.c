@@ -33,10 +33,10 @@ void print_status(struct pmachine* pico, int lines) {
 	for(int i = 0; i < lines; i++) {
 		if(i < pico->SP) {
 			printf("%x:\t %c\t\t %d\n",
-					(i != pico->PC) ? i : 0, read_mem(pico, i), pico->stack[i]);
+					i+pico->PC, read_mem(pico, i+pico->PC), pico->stack[i]);
 		} else {
 			printf("%x:\t %c\t\n",
-					(i != pico->PC) ? i : 0, read_mem(pico, i));
+					i+pico->PC, read_mem(pico, i+pico->PC));
 		}
 	}
 }
