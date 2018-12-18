@@ -1,6 +1,6 @@
+# This programs enables interactive execution and counts to 10
 PUSH 0
 SYSCALL
-start
 PUSH 0
 loop
 PUSH 1
