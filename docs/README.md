@@ -2,6 +2,11 @@
 Pico-machine is a stack based virtual machine, with the goal of having a simple implementation and using a machine language that is representable using only distinguishable, non-whitespace, printable characters.
 This means that all instructions and literals in the machine language is restricted to values from 0 to 93, but the machine operates internally using 8 bits.
 
+## Notice
+
+This document is a reflection of the actual implementation, and may change over time.
+None of this is final.
+
 # Memory layout
 The memory uses a word-size of 8 bits, and is word addressable. 
 Most of the memory, called program memory, is used to store the program, and can be further used to general purpose storage.
@@ -42,7 +47,7 @@ The value 0 and 1 is used to represent false and true, respectively.
 | Load  |	LOAD    |,| Reads the address denoted by `N1` |
 | Store |	STORE   |-| Stores `N1`, at the address of `N2`	|
 | Greater|	GREATER |.| `N1` > `N2`	|
-| Less 	|	LESS    |/| `N1` < `N2`	|
+| Less 	|	LESS    |/| `N1` `<` `N2`	|
 | Equals|	EQUALS  |0| `N1` = `N2`	|
 | If	|	IF      |1| If `N2` is 0, jump to `N1`, if not, continue. `N1` is removed from the stack, regardless of the value of `N1` |
 | Not	|	NOT     |2| If `N1` is 0, push 1 onto the stack, otherwise push 0 |
@@ -56,15 +61,6 @@ The value 0 and 1 is used to represent false and true, respectively.
 The `pmachine` struct defines a function pointer, `handle_error`.
 Replace this to handle any errors that may occour during the runtime of the program.
 The default error handler simply writes a short error message, and exits the program.
-
-
-
-
-
-
-
-
-
 
 
 

@@ -9,5 +9,9 @@ fib: all
 	../assembler/assembler.py ./fib.pm > fib
 	./main ./fib
 
+overflow: all
+	../assembler/assembler.py ./stack_overflow.pm > so
+	./main ./so
+
 clean:
-	rm main count fib
+	rm -f main count fib so

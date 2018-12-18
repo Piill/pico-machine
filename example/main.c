@@ -3,6 +3,11 @@
 
 void print_status(struct pmachine*, int);
 
+void handle_error(struct pmachine* pico ,int error_code);
+void handle_exit(struct pmachine* pico);
+
+int running = 1;
+
 int main(int argc, char* argv[]) {
 	if(argc < 2) {
 		printf("No argument given.\n");
@@ -18,14 +23,26 @@ int main(int argc, char* argv[]) {
 		pmachine_code[i+1] = '\0';
 	}
 
-	struct pmachine* pico = create_machine(pmachine_code);
-	for(;;) {
-		print_status(pico, 30);
-		execute_instruction(pico);
+	struct pmachine pico;
+    init_machine(&pico, pmachine_code);
+    pico.handle_error = &handle_error;
+    pico.handle_exit = &handle_exit;
+	while(running) {
+		print_status(&pico, 30);
+		execute_instruction(&pico);
 		getchar();
 	}
 }
 
+void handle_error(struct pmachine* pico ,int error_code) {
+    running = 0;
+    printf("PMachine error %d\n", error_code);
+}
+
+void handle_exit(struct pmachine* pico) {
+    running = 0;
+    printf("PMachine stopped\n");
+}
 
 void print_status(struct pmachine* pico, int lines) {
 	printf("\033[2J\033[1;1H");
@@ -33,10 +50,10 @@ void print_status(struct pmachine* pico, int lines) {
 	for(int i = 0; i < lines; i++) {
 		if(i < pico->SP) {
 			printf("%x:\t %c\t\t %d\n",
-					i+pico->PC, read_mem(pico, i+pico->PC), pico->stack[i]);
+             i+pico->PC, read_mem(pico, i+pico->PC), pico->stack[pico->SP-i]);
 		} else {
 			printf("%x:\t %c\t\n",
-					i+pico->PC, read_mem(pico, i+pico->PC));
+             i+pico->PC, read_mem(pico, i+pico->PC));
 		}
 	}
 }

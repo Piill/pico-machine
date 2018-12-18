@@ -1,6 +1,8 @@
 # pico-Machine
 pico-Machine is designed to be a minimal, stack based virtual machine, using only printable characters for the machine code, meaning that compiled code can be distributed via SMS, twitter and postcard.
 
+For a detailed overview see the [documentation](./docs/README.md)
+
 It is incomplete for made for fun, so don't go putting it into anm expensive rocket just yet.
 
 # Project structure

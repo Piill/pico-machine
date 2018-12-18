@@ -11,7 +11,6 @@ NOT
 PUSH loop
 IF
 POP
-PUSH start
-JUMP
+EXIT
 
 

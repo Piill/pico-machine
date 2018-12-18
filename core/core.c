@@ -1,30 +1,11 @@
 #include "core.h"
-#include <stdlib.h>
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
 
-void default_error_handler(struct pmachine* pico, int error) {
-	if(error == PER_STACKOVERFLOW)
-		printf("Stack overflow\n");
-	if(error == PER_UNBOUNDMEM)
-		printf("Unbound mem access\n");
-	printf("Terminating program\n");
-	exit(-1);
-}
-
-void default_exit_handler(struct pmachine* pico) {
-	printf("Exit reached\n");
-	exit(0);
-}
-
-struct pmachine* create_machine(char* input_stream) {
-	struct pmachine* pico = malloc(sizeof(struct pmachine));
+void init_machine(struct pmachine* pico, char* input_stream) {
 	pico->SP = 0;
 	pico->PC = 0;
 	memset(pico->mem, 0, 0xFF*sizeof(uint8_t));
-	pico->handle_error = &default_error_handler;
-	pico->handle_exit = &default_exit_handler;
+	pico->handle_error = NULL;
+	pico->handle_exit = NULL;
 	pico->write_mem = NULL;
 	pico->read_mem = NULL;
 
@@ -32,11 +13,6 @@ struct pmachine* create_machine(char* input_stream) {
 			&& input_stream[i] < 127; i++) {
 		pico->mem[i] = input_stream[i];
 	}
-	return pico;
-}
-
-void destroy_machine(struct pmachine* pico) {
-	free(pico);
 }
 
 void execute_instruction(struct pmachine* pico) {
@@ -124,7 +100,9 @@ void execute_instruction(struct pmachine* pico) {
 		case '4': //Syscall
 			break;
 		case '5': //Exit
-			pico->handle_exit(pico);
+            if(pico->handle_exit != NULL) {
+			    pico->handle_exit(pico);
+            }
 			break;
 		default:
 			break;
@@ -153,9 +131,10 @@ uint8_t read_mem(struct pmachine* pico, uint8_t addr) {
 		return pico->SP;
 	} else if(addr <= 0xFF && pico->read_mem != NULL) {
 		return pico->read_mem(addr);
-	} else {
-		pico->handle_error(pico, PER_UNBOUNDMEM);
+	} else if(pico->handle_error != NULL) {
+        pico->handle_error(pico, PER_UNBOUNDMEM);
 	}
+    return -1;
 }
 
 void write_mem(struct pmachine* pico, uint8_t addr, uint8_t val) {
@@ -173,10 +152,11 @@ uint8_t read_stack(struct pmachine* pico, uint8_t addr) {
 		return pico->stack[pico->SP+addr];
 	}
 	pico->handle_error(pico, PER_STACKOVERFLOW);
+    return -1;
 }
 
 void write_stack(struct pmachine* pico, uint8_t addr, uint8_t val) {
-	if(addr+pico->SP <= STACK_DEPTH) {
+	if(addr+pico->SP < STACK_DEPTH) {
 		pico->stack[pico->SP+addr] = val;
 	} else {
 		pico->handle_error(pico, PER_STACKOVERFLOW);
