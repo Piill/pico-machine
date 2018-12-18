@@ -1,12 +1,14 @@
-#include "../core/core.h"
+#include "../../core/pmachine.h"
 #include <stdio.h>
 
 void print_status(struct pmachine*, int);
 
 void handle_error(struct pmachine* pico ,int error_code);
 void handle_exit(struct pmachine* pico);
+void handle_syscall(struct pmachine* pico, int sys_code);
 
 int running = 1;
+int interactive = 0;
 
 int main(int argc, char* argv[]) {
 	if(argc < 2) {
@@ -27,10 +29,13 @@ int main(int argc, char* argv[]) {
     init_machine(&pico, pmachine_code);
     pico.handle_error = &handle_error;
     pico.handle_exit = &handle_exit;
+    pico.handle_syscall = &handle_syscall;
 	while(running) {
-		print_status(&pico, 30);
+        if(interactive) {
+            getchar();
+            print_status(&pico, 30);
+        }
 		execute_instruction(&pico);
-		getchar();
 	}
 }
 
@@ -42,6 +47,18 @@ void handle_error(struct pmachine* pico ,int error_code) {
 void handle_exit(struct pmachine* pico) {
     running = 0;
     printf("PMachine stopped\n");
+}
+
+void handle_syscall(struct pmachine* pico, int syscode) {
+    printf("PMachine syscall\n");
+    switch (syscode) {
+        case 0:  //Enable stepping
+            interactive = 1;
+            break;
+        case 1: //Disable stepping
+            interactive = 0;
+            break;
+    }
 }
 
 void print_status(struct pmachine* pico, int lines) {

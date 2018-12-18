@@ -52,7 +52,7 @@ The value 0 and 1 is used to represent false and true, respectively.
 | If	|	IF      |1| If `N2` is 0, jump to `N1`, if not, continue. `N1` is removed from the stack, regardless of the value of `N1` |
 | Not	|	NOT     |2| If `N1` is 0, push 1 onto the stack, otherwise push 0 |
 | Jump	|	JUMP    |3| Jump to address `N1`	|
-| SysCall|	SYSCALL |4| Makes a system call. This is implementation dependant. |
+| SysCall|	SYSCALL |4| Pops 'N1' and calls the implementation defined system callback function. |
 | Exit	|	EXIT	|5|	Stops execution of the program |
 
 

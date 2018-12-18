@@ -1,3 +1,5 @@
+PUSH 0
+SYSCALL
 start
 PUSH 0
 loop

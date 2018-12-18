@@ -1,4 +1,4 @@
-#include "core.h"
+#include "pmachine.h"
 
 void init_machine(struct pmachine* pico, char* input_stream) {
 	pico->SP = 0;
@@ -98,6 +98,10 @@ void execute_instruction(struct pmachine* pico) {
 			pico->PC = pop(pico);
 			break;
 		case '4': //Syscall
+            if(pico->handle_syscall != NULL) {
+                int sys_code  = pop(pico);
+                pico->handle_syscall(pico, sys_code);
+            }
 			break;
 		case '5': //Exit
             if(pico->handle_exit != NULL) {

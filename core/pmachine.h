@@ -23,6 +23,7 @@ struct pmachine {
 	//Exception handeling
 	void (*handle_error)(struct pmachine* pico ,int error_code);
 	void (*handle_exit)(struct pmachine* pico);
+	void (*handle_syscall)(struct pmachine* pico, int call_code);
 };
 
 void init_machine(struct pmachine*, char* input_stream);
